@@ -31,7 +31,7 @@ export async function loginAction(prevState, formData) {
     if (userRole === "admin") {
       redirect("/admin");
     } else {
-      redirect("/");
+      redirect("/dashboard");
     }
   } catch (error) {
     // Handle redirect from catch block
@@ -65,7 +65,7 @@ export async function signupAction(prevState, formData) {
       return { error: response.error.message || "Signup failed" };
     }
 
-    redirect("/");
+    redirect("/dashboard");
   } catch (error) {
     if (error?.digest?.startsWith("NEXT_REDIRECT")) {
       throw error;
