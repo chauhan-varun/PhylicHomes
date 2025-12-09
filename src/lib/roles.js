@@ -12,9 +12,9 @@ export async function requireRole(allowedRoles) {
     headers: await headers(),
   });
 
-  // Not authenticated - redirect to login
+  // Not authenticated - redirect to signin
   if (!session) {
-    redirect("/login");
+    redirect("/signin");
   }
 
   const userRole = session.user.role || "user";

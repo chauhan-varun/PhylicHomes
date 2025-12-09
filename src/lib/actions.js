@@ -1,7 +1,7 @@
 "use server";
 
 import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export async function loginAction(prevState, formData) {
@@ -19,27 +19,42 @@ export async function loginAction(prevState, formData) {
         password,
       },
       headers: await headers(),
+      asResponse: true,
     });
 
-    if (response.error) {
-      return { error: response.error.message || "Login failed" };
+    if (!response.ok) {
+      const data = await response.json();
+      return { error: data.message || "Invalid email or password" };
     }
 
-    // Get the user's role and redirect accordingly
-    const userRole = response.user?.role || "user";
-
-    if (userRole === "admin") {
-      redirect("/admin");
-    } else {
-      redirect("/dashboard");
+    // Set cookies from the response
+    const setCookieHeader = response.headers.get("set-cookie");
+    if (setCookieHeader) {
+      const cookieStore = await cookies();
+      // Parse and set each cookie
+      const cookieParts = setCookieHeader.split(/,(?=\s*\w+=)/);
+      for (const cookie of cookieParts) {
+        const [cookieValue] = cookie.split(";");
+        const [name, ...valueParts] = cookieValue.split("=");
+        const value = valueParts.join("=");
+        if (name && value) {
+          cookieStore.set(name.trim(), value.trim(), {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
+          });
+        }
+      }
     }
   } catch (error) {
-    // Handle redirect from catch block
     if (error?.digest?.startsWith("NEXT_REDIRECT")) {
       throw error;
     }
     return { error: error.message || "An error occurred during login" };
   }
+
+  redirect("/dashboard");
 }
 
 export async function signupAction(prevState, formData) {
@@ -59,24 +74,47 @@ export async function signupAction(prevState, formData) {
         password,
       },
       headers: await headers(),
+      asResponse: true,
     });
 
-    if (response.error) {
-      return { error: response.error.message || "Signup failed" };
+    if (!response.ok) {
+      const data = await response.json();
+      return { error: data.message || "Signup failed" };
     }
 
-    redirect("/dashboard");
+    // Set cookies from the response
+    const setCookieHeader = response.headers.get("set-cookie");
+    if (setCookieHeader) {
+      const cookieStore = await cookies();
+      // Parse and set each cookie
+      const cookieParts = setCookieHeader.split(/,(?=\s*\w+=)/);
+      for (const cookie of cookieParts) {
+        const [cookieValue] = cookie.split(";");
+        const [name, ...valueParts] = cookieValue.split("=");
+        const value = valueParts.join("=");
+        if (name && value) {
+          cookieStore.set(name.trim(), value.trim(), {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/",
+          });
+        }
+      }
+    }
   } catch (error) {
     if (error?.digest?.startsWith("NEXT_REDIRECT")) {
       throw error;
     }
     return { error: error.message || "An error occurred during signup" };
   }
+
+  redirect("/dashboard");
 }
 
 export async function logoutAction() {
   await auth.api.signOut({
     headers: await headers(),
   });
-  redirect("/login");
+  redirect("/signin");
 }
