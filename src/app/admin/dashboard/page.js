@@ -187,20 +187,28 @@ export default async function AdminDashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-4 rounded-lg bg-white/5">
+                <p className="text-sm text-gray-400">Name</p>
+                <p className="text-white font-medium">{session.user.name}</p>
+              </div>
               <div className="p-4 rounded-lg bg-white/5">
                 <p className="text-sm text-gray-400">Email</p>
                 <p className="text-white font-medium">{session.user.email}</p>
               </div>
               <div className="p-4 rounded-lg bg-white/5">
-                <p className="text-sm text-gray-400">Name</p>
-                <p className="text-white font-medium">{session.user.name}</p>
+                <p className="text-sm text-gray-400">Role</p>
+                <p className="text-white font-medium capitalize">{session.user.role}</p>
               </div>
               <div className="p-4 rounded-lg bg-white/5">
                 <p className="text-sm text-gray-400">Email Status</p>
                 <p className="text-white font-medium">
                   {session.user.emailVerified ? "✅ Verified" : "⚠️ Unverified"}
                 </p>
+              </div>
+              <div className="p-4 rounded-lg bg-white/5 md:col-span-2 lg:col-span-4">
+                <p className="text-sm text-gray-400">User ID</p>
+                <p className="text-white font-medium font-mono text-sm">{session.user.id}</p>
               </div>
             </div>
           </CardContent>
