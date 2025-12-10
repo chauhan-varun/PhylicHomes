@@ -27,6 +27,10 @@ export async function loginAction(prevState, formData) {
       return { error: data.message || "Invalid email or password" };
     }
 
+    // Get user data from response
+    const data = await response.json();
+    const userRole = data?.user?.role || "user";
+
     // Set cookies from the response
     const setCookieHeader = response.headers.get("set-cookie");
     if (setCookieHeader) {
@@ -47,14 +51,19 @@ export async function loginAction(prevState, formData) {
         }
       }
     }
+
+    // Redirect based on user role
+    if (userRole === "admin") {
+      redirect("/admin/dashboard");
+    } else {
+      redirect("/dashboard");
+    }
   } catch (error) {
     if (error?.digest?.startsWith("NEXT_REDIRECT")) {
       throw error;
     }
     return { error: error.message || "An error occurred during login" };
   }
-
-  redirect("/dashboard");
 }
 
 export async function signupAction(prevState, formData) {
